@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous">
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="input_container">
+        <input id='oper' type="text" class="orerands">
+        <button>Выполнить</button>
+    </div>
+    <ul>
+        <caption>Примеры на умножение</caption>
+        <li>0011110001</li>
+        <caption>Деление</caption>
+        <li>1111110101</li>
+        <caption>Ошибка ввода</caption>
+        <li>00111101010</li>
+        <li>00101101020</li>
+        <li>001001020</li>
+        <caption>Ошибка ввода операнда</caption>
+        <li>0111110101</li>
+        <caption>Ошибка деление на ноль</caption>
+        <li>1110110000</li>
+        <caption>Ошибка выход за 4 бита</caption>
+        <li>0010111011</li>
+    </ul>
+    <div class="ansv"></div>
+</body>
+<script>
+    let errorCode = '0000';
+    let operationCode = 0;
+    let firstOperand = 0;
+    let secondOperand = 0;
+    let result = 0;
+    let operands = $('#oper');
+    $('button').on('click', ()=>{
+        let source = operands.val();
+        validate(source);
+        console.log(errorCode);
+        if(errorCode=='0000'){
+           $('.ansv').html('Результат вычисления: ' + result.toString(2)); 
+        }else{
+            $('.ansv').html('Код ошибки: ' + errorCode);
+        }
+        errorCode='0000';
+    })
+
+    function validate(source){
+        
+        if(source.length!=10 || !parseInt(source) || (/[2-9]/.test(source))){
+            errorCode = '0001';
+            return false;
+        } 
+        operationCode = String(source.slice(0,2));
+        firstOperand = String(source.slice(2,6));
+        secondOperand = String(source.slice(6,10));
+        if(operationCode!='11'&&operationCode!='00'){
+            errorCode = '0011';
+            return false;
+        } 
+        if(operationCode=='11'){
+            if(secondOperand=='0000'){
+                errorCode = '0010';
+                return false; 
+            }else{
+                firstOperand = parseInt(firstOperand, 2);
+                secondOperand = parseInt(secondOperand, 2);
+                result = Math.floor(firstOperand/secondOperand);
+            }
+        }else if(operationCode=='00'){
+            firstOperand = parseInt(firstOperand, 2);
+            secondOperand = parseInt(secondOperand, 2);
+            result = Math.floor(firstOperand*secondOperand);
+            if(result>15){
+                errorCode = '0101';
+                return false;
+            }
+        }
+    }
+</script>
+</html>
